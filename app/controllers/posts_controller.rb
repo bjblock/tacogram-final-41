@@ -8,7 +8,11 @@ class PostsController < ApplicationController
     respond_to do |format|
       format.html
       format.json do
-        render :json => @posts
+        render :json => @posts.map { |post|
+          post.as_json.merge(
+            image: post.uploaded_image.attached? ? url_for(post.uploaded_image) : post.image
+          )
+        }
       end
     end
   end
@@ -23,7 +27,7 @@ class PostsController < ApplicationController
       @post = Post.new
       @post["body"] = params["body"]
       @post["image"] = params["image"]
-      # @post.uploaded_image.attach(params["uploaded_image"])
+      @post.uploaded_image.attach(params["uploaded_image"])
       @post["user_id"] = @user["id"]
       @post.save
     else
